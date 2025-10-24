@@ -65,6 +65,11 @@ DDL = [
         payment_method_id INT NOT NULL REFERENCES core.payment_methods(payment_method_id)
     );
     """
+    # Transaction/fact lookups
+    "CREATE INDEX IF NOT EXISTS idx_trx_customer    ON core.transactions(customer_id);",
+    "CREATE INDEX IF NOT EXISTS idx_trx_product     ON core.transactions(product_id);",
+    "CREATE INDEX IF NOT EXISTS idx_trx_paymethod   ON core.transactions(payment_method_id);",
+    "CREATE INDEX IF NOT EXISTS idx_trx_ts          ON core.transactions(timestamp);"
 ]
 
 
