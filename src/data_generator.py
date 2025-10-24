@@ -9,6 +9,8 @@ import random
 import string
 from datetime import datetime, timedelta
 from pathlib import Path
+import unicodedata
+import re
 
 BASE = Path(__file__).resolve().parents[1]  # .../shopflow-pipeline
 RAW_DIR = BASE / "data" / "raw"
@@ -18,15 +20,24 @@ CATEGORIES = ["Electronics", "Books", "Home & Kitchen", "Clothing", "Sports", "B
 SUPPLIERS = ["Acme Corp", "Globex", "Umbrella", "Initech", "Stark Industries", "Wayne Enterprises"]
 PAYMENT_METHODS = ["credit_card", "debit_card", "paypal", "apple_pay", "google_pay"]
 
+def slug_ascii(s: str) -> str:
+    # normalize accents -> ASCII, keep letters, numbers, dot
+    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
+    s = s.lower().replace(" ", ".")
+    s = re.sub(r"[^a-z0-9.]+", "", s)      # remove anything not a-z 0-9 or dot
+    s = re.sub(r"\.{2,}", ".", s).strip(".")  # collapse multiple dots, trim edges
+    return s
+
 def random_name():
     first = random.choice(["Ana","João","Maria","Luca","Emma","Noah","Olivia","Liam","Mia","Tiago","Sofia","Mateo","Laura","Eva","Gabriel","Lucas","Inês","Afonso"])
     last = random.choice(["Silva","Santos","Pereira","Costa","Oliveira","Gomes","Martins","Rodrigues","Lopes","Almeida","Ferreira","Carvalho","Sousa","Gonçalves"])
     return f"{first} {last}"
 
 def random_email(name, idx):
-    base = name.lower().replace(" ", ".")
+    base = slug_ascii(name)
     domain = random.choice(["gmail.com","outlook.com","yahoo.com","example.com","proton.me"])
     return f"{base}.{idx}@{domain}"
+
 
 def random_product_name(category):
     prefix = random.choice(["Ultra","Pro","Max","Eco","Smart","Lite","Nano","Hyper"])
